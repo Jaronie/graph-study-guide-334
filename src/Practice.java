@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +45,7 @@ public class Practice {
       count++;
     }
     for(Vertex<Integer> neighbor : current.neighbors){
-      oddVertices(neighbor, visited);
+      count += oddVertices(neighbor, visited);
     }
 
     return count;
@@ -67,7 +70,27 @@ public class Practice {
    * @return a sorted list of all reachable vertex values by 
    */
   public static List<Integer> sortedReachable(Vertex<Integer> starting) {
-    return null;
+    List<Integer> result = new ArrayList<>();
+    Set<Vertex<Integer>> visited = new HashSet<>();
+
+    //call helper
+    listOfVertices(starting, visited, result);
+    Collections.sort(result);
+    return result;
+  }
+
+  private static void listOfVertices(Vertex<Integer> current, Set<Vertex<Integer>> visited, List<Integer> result){
+    if(current == null) return;
+
+    if(visited.contains(current)) return;
+
+    visited.add(current);
+    result.add(current.data);
+
+    for(Vertex<Integer> neighbor : current.neighbors){
+      listOfVertices(neighbor,visited,result);
+    }
+
   }
 
   /**
@@ -81,7 +104,35 @@ public class Practice {
    * @return a sorted list of all reachable vertex values
    */
   public static List<Integer> sortedReachable(Map<Integer, Set<Integer>> graph, int starting) {
-    return null;
+    // result List and visited Set
+    List<Integer> result = new ArrayList<>();
+    Set<Integer> visited = new HashSet<>();
+
+    // base case for starting node
+    if(!graph.containsKey(starting)) return result;
+
+    //call helper
+    dfs(graph, starting, visited, result);
+
+    // sort result and return
+    Collections.sort(result);
+    return result;
+  }
+
+  private static void dfs(Map<Integer, Set<Integer>> graph, int current, Set<Integer> visited, List<Integer> result) {
+    if(visited.contains(current)) return;
+
+    visited.add(current);
+    result.add(current);
+
+    Set<Integer> neighbors = graph.get(current);
+    if(neighbors == null) return; // //value but not a key, skip
+
+    for(int neighbor : neighbors){
+
+      dfs(graph,neighbor,visited,result);
+    }
+
   }
 
   /**
@@ -99,6 +150,27 @@ public class Practice {
    * @return true if there is a two-way connection between v1 and v2, false otherwise
    */
   public static <T> boolean twoWay(Vertex<T> v1, Vertex<T> v2) {
+    if(v1 == null || v2 == null) {
+      return false;
+    }
+
+    return reachable(v1, v2, new HashSet<>()) && reachable(v2, v1, new HashSet<>());
+  }
+
+  private static <T> boolean reachable(Vertex<T> current, Vertex<T> target, Set<Vertex<T>> visited) {
+    if(current == target){ // if current == target the target is considered reachable
+      return true;
+    }
+    if(!visited.add(current)) { // set returns true or false if it contains current value, false if it was explored (for single nodes)
+      return false; // already explored
+    }
+
+    for(Vertex<T> neighbor : current.neighbors){
+      if(reachable(neighbor,target,visited)){
+        return true;
+      }
+    }
+
     return false;
   }
 
