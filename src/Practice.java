@@ -187,6 +187,26 @@ public class Practice {
    * @return whether there exists a valid positive path from starting to ending
    */
   public static boolean positivePathExists(Map<Integer, Set<Integer>> graph, int starting, int ending) {
+    if(starting <= 0 || ending <= 0) return false;
+    if(!graph.containsKey(starting) || !graph.containsKey(ending)) return false;
+    return positivePath(graph, starting, ending, new HashSet<>());
+  }
+
+  private static boolean positivePath(Map<Integer, Set<Integer>> graph, int current, int ending, Set<Integer> visited){
+    if(current <= 0) return false;
+
+    if(current == ending) return true;
+
+    if(!visited.add(current)) return false;
+
+    Set<Integer> neighbors = graph.get(current);
+    if(neighbors == null) return false;
+
+    for(int neighbor : neighbors){
+      if(positivePath(graph, neighbor, ending, visited)) {
+        return true;
+      }
+    }
     return false;
   }
 
@@ -200,6 +220,26 @@ public class Practice {
    * @return true if a person in the extended network works at the specified company, false otherwise
    */
   public static boolean hasExtendedConnectionAtCompany(Professional person, String companyName) {
+    if(person == null) return false;
+
+    return connectionsAtCompany(person, companyName, new HashSet<>());
+  }
+  
+  private static boolean connectionsAtCompany(Professional current, String companyName, Set<Professional> visited){
+    // check if the current is null/visited contains current
+    if(current == null) return false;
+
+    if(current.getCompany().equals(companyName)) return true;
+
+    if(!visited.add(current)) return false; // this instance has been visited already
+
+
+    for(Professional neighbor : current.getConnections()) {
+      if(connectionsAtCompany(neighbor,companyName,visited)){
+        return true;
+      }
+    }
+
     return false;
   }
 
@@ -271,6 +311,19 @@ public class Practice {
    * @return an unsorted list of next moves
    */
   public static List<int[]> nextMoves(char[][] board, int[] current, int[][] directions) {
-    return null;
+    List<int[]> result = new ArrayList<>(); // moves list
+
+    for(int[] dir : directions){
+      int newRow = current[0] + dir[0];
+      int newCol = current[1] + dir[1];
+
+      boolean inBounds = newRow >= 0 && newRow < board.length && newCol >= 0 && newCol < board[0].length;
+
+      if(inBounds && board[newRow][newCol] != 'X'){
+        result.add(new int[]{newRow, newCol});
+      }
+    }
+
+      return result;
   }
 }
